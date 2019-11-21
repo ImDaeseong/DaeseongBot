@@ -158,10 +158,8 @@ namespace WindowsFormsApplication1
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message.ToString());
-            }
-            
-        }
-               
+            }            
+        }               
 
         private async void button2_Click(object sender, EventArgs e)
         {
