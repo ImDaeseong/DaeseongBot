@@ -20,7 +20,7 @@ namespace WindowsFormsApplication1
     {
         private static readonly TelegramBotClient bot = new TelegramBotClient("TOKEN");
 
-        private Dictionary<long, string> dic = new Dictionary<long, string>();
+        private static Dictionary<long, string> dic = new Dictionary<long, string>();
                         
         public Form1()
         {
@@ -42,6 +42,20 @@ namespace WindowsFormsApplication1
             }
         }
 
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            try
+            {
+                dic.Clear();
+
+                bot.StopReceiving();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message.ToString());
+            }
+        }
+
         private async void bot_OnMessage(object sender, Telegram.Bot.Args.MessageEventArgs e)
         {
             if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Text)
@@ -52,7 +66,7 @@ namespace WindowsFormsApplication1
                 string lasttname = e.Message.Chat.LastName;
 
 
-                //메시지를 보낸 클라이언트 아이디 저장
+                //나에게 메시지를 보내온 chatid 저장
                 if (!dic.ContainsKey(chatid))
                 {
                     dic.Add(chatid, firstname);
@@ -101,39 +115,6 @@ namespace WindowsFormsApplication1
         {
             Console.WriteLine("bot_OnMessageEdited");
         }
-                               
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            try
-            {
-                dic.Clear();
-
-                bot.StopReceiving();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message.ToString());
-            }
-        }
-
-        private async void button1_Click(object sender, EventArgs e)
-        {
-            string sMsg = textBox2.Text;
-            
-            foreach (KeyValuePair<long, string> pair in dic)
-            {
-                //Console.WriteLine("{0}, {1}", pair.Key, pair.Value);
-
-                await bot.SendTextMessageAsync(pair.Key, textBox2.Text);
-
-                Invoke(new MethodInvoker(delegate()
-                {
-                    textBox1.Text += " 전달내용 - " + sMsg + " [" + pair.Value + "]" + Environment.NewLine;
-                }));
-            }
-
-            textBox2.Text = "";
-        }
 
         private bool IsExistFile(string sLocalPath)
         {
@@ -153,49 +134,74 @@ namespace WindowsFormsApplication1
             return string.Empty;
         }
 
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string sMsg = textBox2.Text;
+                textBox2.Text = "";
+
+                if (sMsg == "") return;
+                
+                foreach (KeyValuePair<long, string> pair in dic)
+                {
+                    //Console.WriteLine("{0}, {1}", pair.Key, pair.Value);
+
+                    await bot.SendTextMessageAsync(pair.Key, sMsg);
+
+                    Invoke(new MethodInvoker(delegate()
+                    {
+                        textBox1.Text += " 전달내용 - " + sMsg + " [" + pair.Value + "]" + Environment.NewLine;
+                    }));
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message.ToString());
+            }
+            
+        }
+               
+
         private async void button2_Click(object sender, EventArgs e)
         {
-            string sImgPath = "";
-
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.RestoreDirectory = true;
-            if (fileDialog.ShowDialog() == DialogResult.OK)
+            try
             {
-                sImgPath = fileDialog.FileName;
-            }
+                //이미지 체크
+                string sImgPath = "";
+                OpenFileDialog fileDialog = new OpenFileDialog();
+                fileDialog.RestoreDirectory = true;
+                if (fileDialog.ShowDialog() == DialogResult.OK)
+                    sImgPath = fileDialog.FileName;
 
-            if (sImgPath == "") return;
+                if (sImgPath == "") return;
+                if (!IsExistFile(sImgPath)) return;
+                if (fileExtName(sImgPath).ToLower() != "png" && fileExtName(sImgPath).ToLower() != "bmp" && fileExtName(sImgPath).ToLower() != "gif" && fileExtName(sImgPath).ToLower() != "jpg") return;
 
-            //파일 존재여부 확인
-            if (!IsExistFile(sImgPath)) return;
+                //테스트 체크
+                string sMsg = textBox2.Text;
+                textBox2.Text = "";
+                if (sMsg == "")
+                    sMsg = "이미지 전달";
 
-            //이미지만
-            if (fileExtName(sImgPath).ToLower() != "png" && 
-                fileExtName(sImgPath).ToLower() != "bmp" && 
-                fileExtName(sImgPath).ToLower() != "gif" && 
-                fileExtName(sImgPath).ToLower() != "jpg")
-            {
-                return;
-            }
-                        
-            string sMsg = textBox2.Text;
-            if (sMsg == "")
-                sMsg = "이미지 전달";
-
-            foreach (KeyValuePair<long, string> pair in dic)
-            {
-                using (var fileStream = new FileStream(sImgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                foreach (KeyValuePair<long, string> pair in dic)
                 {
-                    await bot.SendPhotoAsync(pair.Key, fileStream, sMsg);
+                    using (var fileStream = new FileStream(sImgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        await bot.SendPhotoAsync(pair.Key, fileStream, sMsg);
+                    }
+
+                    Invoke(new MethodInvoker(delegate()
+                    {
+                        textBox1.Text += " 전달내용 - " + sMsg + " [" + pair.Value + "]" + Environment.NewLine;
+                    }));
                 }
-
-                Invoke(new MethodInvoker(delegate()
-                {
-                    textBox1.Text += " 전달내용 - " + sMsg + " [" + pair.Value + "]" + Environment.NewLine;
-                }));
+                
             }
-
-            textBox2.Text = "";
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message.ToString());
+            }
         }
 
     }
