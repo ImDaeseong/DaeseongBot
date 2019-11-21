@@ -83,7 +83,7 @@ namespace WindowsFormsApplication1
                     StringBuilder sMsg = new StringBuilder();
                     sMsg.AppendLine("/help -> 나의 이미지");
                     sMsg.AppendLine("/keyboard -> 나의 페이지");
-                    sMsg.AppendLine("/back -> 나의 링크 페이지");
+                    sMsg.AppendLine("/link -> 나의 링크 페이지");
                     await bot.SendTextMessageAsync(chatid, sMsg.ToString());
                 }
                 else if (sMessage == "/keyboard")
@@ -94,7 +94,7 @@ namespace WindowsFormsApplication1
                     };
                     await bot.SendTextMessageAsync(chatid, "github.com/ImDaeseong 정보를 확인하세요.", replyMarkup: ReplyKeyboard);
                 }
-                else if (sMessage == "/back") 
+                else if (sMessage == "/link") 
                 {
                     var InlineKeyboard = new InlineKeyboardMarkup(new[]
                     {
