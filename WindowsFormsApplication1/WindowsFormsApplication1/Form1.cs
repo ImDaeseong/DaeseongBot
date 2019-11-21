@@ -33,14 +33,19 @@ namespace WindowsFormsApplication1
             {
                 bot.OnMessage += bot_OnMessage;
                 bot.OnMessageEdited += bot_OnMessageEdited;
+                bot.OnCallbackQuery += bot_OnCallbackQuery;
                 bot.OnReceiveError += bot_OnReceiveError;
+
+                var me = bot.GetMeAsync().Result;
+                this.Text = me.Username;
+
                 bot.StartReceiving();
             }
             catch (Exception ex) 
             {
                 Console.WriteLine(ex.Message.ToString());
             }
-        }
+        }        
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
@@ -71,19 +76,32 @@ namespace WindowsFormsApplication1
                 {
                     dic.Add(chatid, firstname);
                 }
-
-
-                ReplyKeyboardMarkup ReplyKeyboard = new[] {
-                        new[] { "https://github.com/ImDaeseong" },
-                        new[] { "https://github.com/ImDaeseong/DaeseongBot" },
-                };
-
-                await bot.SendTextMessageAsync(e.Message.Chat.Id, "github.com/ImDaeseong 정보를 확인하세요.", replyMarkup: ReplyKeyboard);
-                                
+                
 
                 if (sMessage == "/start")
                 {
-                    await bot.SendTextMessageAsync(chatid, firstname + "님 시작합니다\n", replyToMessageId: e.Message.MessageId);
+                    StringBuilder sMsg = new StringBuilder();
+                    sMsg.AppendLine("/help -> 나의 이미지");
+                    sMsg.AppendLine("/keyboard -> 나의 페이지");
+                    sMsg.AppendLine("/back -> 나의 링크 페이지");
+                    await bot.SendTextMessageAsync(chatid, sMsg.ToString());
+                }
+                else if (sMessage == "/keyboard")
+                {
+                    ReplyKeyboardMarkup ReplyKeyboard = new[] {
+                        new[] { "https://github.com/ImDaeseong" },
+                        new[] { "https://github.com/ImDaeseong/DaeseongBot" },
+                    };
+                    await bot.SendTextMessageAsync(chatid, "github.com/ImDaeseong 정보를 확인하세요.", replyMarkup: ReplyKeyboard);
+                }
+                else if (sMessage == "/back") 
+                {
+                    var InlineKeyboard = new InlineKeyboardMarkup(new[]
+                    {
+                        new[] { InlineKeyboardButton.WithUrl("Daeseong", "https://github.com/ImDaeseong") },
+                        new[] { InlineKeyboardButton.WithCallbackData("ImDaeseong") }
+                    });
+                    await bot.SendTextMessageAsync(chatid, "나의 링크 정보를 확인하세요.", replyMarkup: InlineKeyboard);                
                 }
                 else if (sMessage == "/help")
                 {
@@ -106,6 +124,15 @@ namespace WindowsFormsApplication1
             }
         }
 
+        private static async void bot_OnCallbackQuery(object sender, Telegram.Bot.Args.CallbackQueryEventArgs e)
+        {
+            var callbackQuery = e.CallbackQuery;
+            string messageBody = callbackQuery.Data;
+            var chatId = callbackQuery.Message.Chat.Id;
+            
+            await bot.SendTextMessageAsync(chatId, messageBody);
+        }
+
         private void bot_OnReceiveError(object sender, Telegram.Bot.Args.ReceiveErrorEventArgs e)
         {
             Console.WriteLine("bot_OnReceiveError");
@@ -115,7 +142,7 @@ namespace WindowsFormsApplication1
         {
             Console.WriteLine("bot_OnMessageEdited");
         }
-
+        
         private bool IsExistFile(string sLocalPath)
         {
             FileInfo f = new FileInfo(sLocalPath);
@@ -133,6 +160,19 @@ namespace WindowsFormsApplication1
                 return strFilename.Substring(nPos + 1, (nLength - nPos) - 1);
             return string.Empty;
         }
+
+        private static async void SendMsg(long chatId, string sMsg)
+        {
+            await bot.SendTextMessageAsync(chatId, sMsg);
+        }
+
+        private static async void SendPhoto(string sImgPath, long chatId, string sMsg)
+        {
+            using (var fileStream = new FileStream(sImgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                await bot.SendPhotoAsync(chatId, fileStream, sMsg);
+            }
+        } 
 
         private async void button1_Click(object sender, EventArgs e)
         {
