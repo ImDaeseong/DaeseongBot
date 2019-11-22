@@ -20,7 +20,7 @@ namespace WindowsFormsApplication1
     public partial class Form1 : Form
     {
         private static readonly TelegramBotClient bot = new TelegramBotClient("TOKEN");
-
+        
         private static Dictionary<long, string> dic = new Dictionary<long, string>();
                         
         public Form1()
@@ -123,7 +123,6 @@ namespace WindowsFormsApplication1
                 //Console.WriteLine("Audio");
 
                 var fileInfo = await bot.GetFileAsync(e.Message.Audio.FileId);
-
                 using (var stream = new FileStream(e.Message.Audio.FileId + ".mp3", FileMode.Create))
                 {
                     await bot.GetInfoAndDownloadFileAsync(fileInfo.FileId, stream);
@@ -151,7 +150,7 @@ namespace WindowsFormsApplication1
             }
             else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Sticker)
             {                
-                Console.WriteLine("Sticker");
+                //Console.WriteLine("Sticker");
 
                 var fileInfo = await bot.GetFileAsync(e.Message.Sticker.FileId);
                 using (var stream = new FileStream(e.Message.Sticker.FileId, FileMode.Create))
@@ -161,7 +160,7 @@ namespace WindowsFormsApplication1
             }
             else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Video)
             {
-                Console.WriteLine("Video");
+                //Console.WriteLine("Video");
 
                 var fileInfo = await bot.GetFileAsync(e.Message.Video.FileId);
                 using (var stream = new FileStream(e.Message.Video.FileId, FileMode.Create))
@@ -171,7 +170,7 @@ namespace WindowsFormsApplication1
             }
             else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Voice)
             {
-                Console.WriteLine("Voice");
+                //Console.WriteLine("Voice");
 
                 var fileInfo = await bot.GetFileAsync(e.Message.Voice.FileId);
                 using (var stream = new FileStream(e.Message.Voice.FileId, FileMode.Create))
