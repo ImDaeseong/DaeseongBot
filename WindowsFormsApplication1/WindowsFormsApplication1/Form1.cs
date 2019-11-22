@@ -13,6 +13,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using Telegram.Bot.Types.InputFiles;
 
 namespace WindowsFormsApplication1
 {
@@ -115,10 +116,75 @@ namespace WindowsFormsApplication1
                 Invoke(new MethodInvoker(delegate()
                 {
                     textBox1.Text += "[ " + e.Message.Date.TimeOfDay + 3 + " ] 받은내용 - " + sMessage + " [" + firstname + "]" + Environment.NewLine;
-                }));
-           
+                }));           
             }
-            else 
+            else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Audio)
+            {
+                //Console.WriteLine("Audio");
+
+                var fileInfo = await bot.GetFileAsync(e.Message.Audio.FileId);
+
+                using (var stream = new FileStream(e.Message.Audio.FileId + ".mp3", FileMode.Create))
+                {
+                    await bot.GetInfoAndDownloadFileAsync(fileInfo.FileId, stream);
+                }                           
+            }
+            else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Photo)
+            {
+                //Console.WriteLine("Photo");
+
+                var fileInfo = await bot.GetFileAsync(e.Message.Photo[1].FileId);
+                using (var stream = new FileStream(e.Message.Photo[1].FileId + ".jpg", FileMode.Create))
+                {
+                    await bot.GetInfoAndDownloadFileAsync(fileInfo.FileId, stream);
+                }                 
+            }
+            else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Document)
+            {
+                //Console.WriteLine("Document");
+
+                var fileInfo = await bot.GetFileAsync(e.Message.Document.FileId);
+                using (var stream = new FileStream(e.Message.Document.FileName, FileMode.Create))
+                {
+                    await bot.GetInfoAndDownloadFileAsync(fileInfo.FileId, stream);
+                }
+            }
+            else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Sticker)
+            {                
+                Console.WriteLine("Sticker");
+
+                var fileInfo = await bot.GetFileAsync(e.Message.Sticker.FileId);
+                using (var stream = new FileStream(e.Message.Sticker.FileId, FileMode.Create))
+                {
+                    await bot.GetInfoAndDownloadFileAsync(fileInfo.FileId, stream);
+                }
+            }
+            else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Video)
+            {
+                Console.WriteLine("Video");
+
+                var fileInfo = await bot.GetFileAsync(e.Message.Video.FileId);
+                using (var stream = new FileStream(e.Message.Video.FileId, FileMode.Create))
+                {
+                    await bot.GetInfoAndDownloadFileAsync(fileInfo.FileId, stream);
+                }
+            }
+            else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Voice)
+            {
+                Console.WriteLine("Voice");
+
+                var fileInfo = await bot.GetFileAsync(e.Message.Voice.FileId);
+                using (var stream = new FileStream(e.Message.Voice.FileId, FileMode.Create))
+                {
+                    await bot.GetInfoAndDownloadFileAsync(fileInfo.FileId, stream);
+                }
+            }
+            else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Location)
+            {
+                string sMsg = string.Format("Latitude:{0} Longitude:{1}", e.Message.Location.Latitude, e.Message.Location.Longitude);
+                Console.WriteLine(sMsg);
+            }
+            else
             {
                 await bot.SendTextMessageAsync(e.Message.Chat.Id, "메시지 내용이 테스트가 아닙니다.", replyToMessageId: e.Message.MessageId);
             }
@@ -161,19 +227,92 @@ namespace WindowsFormsApplication1
             return string.Empty;
         }
 
+        private string fileExeName(string sFileFullPath)
+        {
+            string sFileName = sFileFullPath.Substring(sFileFullPath.LastIndexOf("\\") + 1);
+            return sFileName;
+        }
+                
         private static async void SendMsg(long chatId, string sMsg)
         {
             await bot.SendTextMessageAsync(chatId, sMsg);
         }
 
-        private static async void SendPhoto(string sImgPath, long chatId, string sMsg)
+        private static async void SendPhoto(long chatId, string sPath, string sMsg)
         {
-            using (var fileStream = new FileStream(sImgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            try
             {
-                await bot.SendPhotoAsync(chatId, fileStream, sMsg);
+                using (var fileStream = new FileStream(sPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    await bot.SendPhotoAsync(chatId, new InputOnlineFile(fileStream, Path.GetFileName(sPath)), sMsg);                    
+                }
             }
-        } 
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message.ToString());
+            }
+        }
 
+        private static async void SendAudio(long chatId, string sPath, string sMsg)
+        {
+            try
+            {
+                using (var fileStream = new FileStream(sPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    await bot.SendAudioAsync(chatId, new InputOnlineFile(fileStream, Path.GetFileName(sPath)), sMsg);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message.ToString());
+            }
+        }
+
+        private static async void SendSticker(long chatId, string sPath)
+        {
+            try
+            {
+                using (var fileStream = new FileStream(sPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    await bot.SendStickerAsync(chatId, new InputOnlineFile(fileStream, Path.GetFileName(sPath)));
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message.ToString());
+            }
+        }
+
+        private static async void SendVideo(long chatId, string sPath)
+        {
+            try
+            {
+                using (var fileStream = new FileStream(sPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    await bot.SendVideoAsync(chatId, new InputOnlineFile(fileStream, Path.GetFileName(sPath)));
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message.ToString());
+            }
+        }
+
+        private static async void SendVoice(long chatId, string sPath, string sMsg)
+        {
+            try
+            {
+                using (var fileStream = new FileStream(sPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    await bot.SendVoiceAsync(chatId, new InputOnlineFile(fileStream, Path.GetFileName(sPath)), sMsg);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message.ToString());
+            }
+        }
+        
         private async void button1_Click(object sender, EventArgs e)
         {
             try
@@ -216,19 +355,25 @@ namespace WindowsFormsApplication1
                 if (!IsExistFile(sImgPath)) return;
                 if (fileExtName(sImgPath).ToLower() != "png" && fileExtName(sImgPath).ToLower() != "bmp" && fileExtName(sImgPath).ToLower() != "gif" && fileExtName(sImgPath).ToLower() != "jpg") return;
 
+                string sFileName = fileExeName(sImgPath);
+
                 //테스트 체크
                 string sMsg = textBox2.Text;
                 textBox2.Text = "";
                 if (sMsg == "")
-                    sMsg = "이미지 전달";
+                    sMsg =  " 이미지:" + sFileName;
+                else
+                    sMsg += " 이미지:" + sFileName; 
 
                 foreach (KeyValuePair<long, string> pair in dic)
                 {
-                    using (var fileStream = new FileStream(sImgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                    {
-                        await bot.SendPhotoAsync(pair.Key, fileStream, sMsg);
-                    }
+                    SendPhoto(pair.Key, sImgPath, sMsg);
 
+                    //SendAudio(pair.Key, sImgPath, sMsg);
+                    //SendSticker(pair.Key, sImgPath);
+                    //SendVideo(pair.Key, sImgPath);
+                    //SendVoice(pair.Key, sImgPath, sMsg);
+                                                                                
                     Invoke(new MethodInvoker(delegate()
                     {
                         textBox1.Text += " 전달내용 - " + sMsg + " [" + pair.Value + "]" + Environment.NewLine;
