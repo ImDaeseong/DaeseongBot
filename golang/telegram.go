@@ -63,9 +63,9 @@ func main() {
 
 		} else if update.Message.Command() == "/link" || update.Message.Text == "/link" {
 
-			btn1 := tgbotapi.NewInlineKeyboardButtonURL("Daeseong", "https://github.com/ImDaeseong")
-			btn2 := tgbotapi.NewInlineKeyboardButtonURL("DaeseongBot", "https://github.com/ImDaeseong/DaeseongBot")
-			Markup := tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(btn1, btn2))
+			link1 := tgbotapi.NewInlineKeyboardButtonURL("Daeseong", "https://github.com/ImDaeseong")
+			link2 := tgbotapi.NewInlineKeyboardButtonURL("DaeseongBot", "https://github.com/ImDaeseong/DaeseongBot")
+			Markup := tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(link1, link2))
 
 			sMsg := "나의 링크 정보를 확인하세요."
 			sSendMsg := tgbotapi.NewMessage(chatid, sMsg)
