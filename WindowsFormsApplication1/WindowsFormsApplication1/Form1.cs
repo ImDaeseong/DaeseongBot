@@ -19,7 +19,8 @@ namespace WindowsFormsApplication1
 {
     public partial class Form1 : Form
     {
-        private static readonly TelegramBotClient bot = new TelegramBotClient("TOKEN");
+        private static readonly TelegramBotClient bot = new TelegramBotClient("1026244097:AAFbcBf3NYbRbriGLRAm5ILq7AQGLdpaqcc");
+        //private static readonly TelegramBotClient bot = new TelegramBotClient("TOKEN");
         
         private static Dictionary<long, string> dic = new Dictionary<long, string>();
                         
