@@ -75,35 +75,6 @@ func main() {
 				log.Print(err.Error())
 			}
 
-			/*
-				title1 := "Daeseong"
-				url1 := "https://github.com/ImDaeseong"
-
-				title2 := "DaeseongBot"
-				url2 := "https://github.com/ImDaeseong/DaeseongBot"
-
-				link1 := tgbotapi.InlineKeyboardButton{
-					Text: title1, URL: &url1,
-				}
-				link2 := tgbotapi.InlineKeyboardButton{
-					Text: title2, URL: &url2,
-				}
-
-				Markup := tgbotapi.NewInlineKeyboardMarkup(
-					tgbotapi.NewInlineKeyboardRow(
-						link1,
-						link2,
-					))
-
-				sMsg := "나의 링크 정보를 확인하세요."
-				sSendMsg := tgbotapi.NewMessage(chatid, sMsg)
-				sSendMsg.ReplyMarkup = Markup
-				_, err := bot.Send(sSendMsg)
-				if err != nil {
-					log.Print(err.Error())
-				}
-			*/
-
 		} else if update.Message.Command() == "/help" || update.Message.Text == "/help" {
 
 			imgUrl := "https://avatars0.githubusercontent.com/u/10001221?s=460&v=4"
