@@ -19,7 +19,8 @@ namespace WindowsFormsApplication1
 {
     public partial class Form1 : Form
     {
-        private static readonly TelegramBotClient bot = new TelegramBotClient("TOKEN");
+        private static readonly TelegramBotClient bot = new TelegramBotClient("1026244097:AAFbcBf3NYbRbriGLRAm5ILq7AQGLdpaqcc");
+        //private static readonly TelegramBotClient bot = new TelegramBotClient("TOKEN");
         
         private static Dictionary<long, string> dic = new Dictionary<long, string>();
                         
@@ -120,17 +121,19 @@ namespace WindowsFormsApplication1
             }
             else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Audio)
             {
-                //Console.WriteLine("Audio");
+                //Console.WriteLine(e.Message.Audio.FileId);
+                //Console.WriteLine(e.Message.Audio.Title);
+                //Console.WriteLine(e.Message.Audio.MimeType);
 
                 var fileInfo = await bot.GetFileAsync(e.Message.Audio.FileId);
-                using (var stream = new FileStream(e.Message.Audio.FileId + ".mp3", FileMode.Create))
+                using (var stream = new FileStream(e.Message.Audio.Title + ".mp3", FileMode.Create))
                 {
                     await bot.GetInfoAndDownloadFileAsync(fileInfo.FileId, stream);
                 }                           
             }
             else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Photo)
-            {
-                //Console.WriteLine("Photo");
+            {                
+                //Console.WriteLine(e.Message.Photo[1].FileId);
 
                 var fileInfo = await bot.GetFileAsync(e.Message.Photo[1].FileId);
                 using (var stream = new FileStream(e.Message.Photo[1].FileId + ".jpg", FileMode.Create))
@@ -140,7 +143,8 @@ namespace WindowsFormsApplication1
             }
             else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Document)
             {
-                //Console.WriteLine("Document");
+                //Console.WriteLine(e.Message.Document.FileId);
+                //Console.WriteLine(e.Message.Document.FileName);
 
                 var fileInfo = await bot.GetFileAsync(e.Message.Document.FileId);
                 using (var stream = new FileStream(e.Message.Document.FileName, FileMode.Create))
@@ -149,31 +153,34 @@ namespace WindowsFormsApplication1
                 }
             }
             else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Sticker)
-            {                
-                //Console.WriteLine("Sticker");
+            {
+                //Console.WriteLine(e.Message.Sticker.FileId);
+                //Console.WriteLine(e.Message.Sticker.SetName);
 
                 var fileInfo = await bot.GetFileAsync(e.Message.Sticker.FileId);
-                using (var stream = new FileStream(e.Message.Sticker.FileId, FileMode.Create))
+                using (var stream = new FileStream(e.Message.Sticker.SetName + ".tgs", FileMode.Create))
                 {
                     await bot.GetInfoAndDownloadFileAsync(fileInfo.FileId, stream);
                 }
             }
             else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Video)
             {
-                //Console.WriteLine("Video");
+                //Console.WriteLine(e.Message.Video.FileId);
+                //Console.WriteLine(e.Message.Video.MimeType);
 
                 var fileInfo = await bot.GetFileAsync(e.Message.Video.FileId);
-                using (var stream = new FileStream(e.Message.Video.FileId, FileMode.Create))
+                using (var stream = new FileStream(e.Message.Video.FileId + ".mp4", FileMode.Create))
                 {
                     await bot.GetInfoAndDownloadFileAsync(fileInfo.FileId, stream);
                 }
             }
             else if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Voice)
             {
-                //Console.WriteLine("Voice");
+                //Console.WriteLine(e.Message.Voice.FileId);
+                //Console.WriteLine(e.Message.Video.MimeType);
 
                 var fileInfo = await bot.GetFileAsync(e.Message.Voice.FileId);
-                using (var stream = new FileStream(e.Message.Voice.FileId, FileMode.Create))
+                using (var stream = new FileStream(e.Message.Voice.FileId + ".oga", FileMode.Create))
                 {
                     await bot.GetInfoAndDownloadFileAsync(fileInfo.FileId, stream);
                 }
